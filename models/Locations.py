@@ -4,13 +4,13 @@ from sqlalchemy import Column, Integer, String, Text, Date, ForeignKey
 from utils.database import Base
 
 
-class Locations(Base):
-    __tablename__ = 'locations'
+class Location(Base):
+    __tablename__ = 'location'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     lat = Column(String(20), unique=False)
     lng = Column(String(20), unique=False)
-    device = Column(Integer, ForeignKey("devices.id"))
+    device = Column(Integer, ForeignKey("device.id"))
     date_registered = Column(Date, default=datetime.datetime.utcnow)
 
 

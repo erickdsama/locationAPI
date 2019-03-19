@@ -1,25 +1,55 @@
-from models import Operators, Users, Devices, Locations, Requests
-from flask import session
-import flask
 import functools
+
+import flask
+from sqlalchemy.exc import IntegrityError
+
+from models import Operator, User, Device, Location, Request
 
 SECRET_KEY = 'develop'
 
+
+def register_device(code, short_name, user, db_session=None):
+    print "short_name", short_name
+    print "code", code
+    print "user", user.id
+
+    device = Device(id_code=code, short_name=short_name, user=user.id)
+    db_session.add(device)
+    try:
+        db_session.commit()
+    except IntegrityError as e:
+        raise e
+    return device
+
+
+def register_user(number, operator, db_session=None):
+    operator = get_operator(operator)
+    device = User(number=number, operator=operator.id)
+    db_session.add(device)
+    try:
+        db_session.commit()
+    except IntegrityError as e:
+        raise e
+    return device
+
+
 def get_device(user_id=None, short_name=None, id_code=None):
     if id_code is not None:
-        device = Devices.query.filter(Devices.id_code == id_code).first()
-    else:     
-        device = Devices.query.filter(Devices.short_name == short_name).filter(Devices.user == user_id).first()
+        device = Device.query.filter(Device.id_code == id_code).first()
+    else:
+        device = Device.query.filter(Device.short_name == short_name).filter(Device.user == user_id).first()
     return device
-    
+
 
 def get_location(device):
-    location = Locations.query.filter(Locations.device == device).first()
+    location = Location.query.filter(Location.device == device).order_by(Location.id.desc()).first()
     return location
 
+
 def get_operator(operator_id):
-    operator = Operators.query.filter(Operators.id == operator_id).first()
+    operator = Operator.query.filter(Operator.id == operator_id).first()
     return operator
+
 
 def valid_user(f):
     @functools.wraps(f)
@@ -29,22 +59,26 @@ def valid_user(f):
         if not data:
             flask.abort(403)
         else:
+            print type(data)
             number = data.get("number")
-            user = Users.query.filter(Users.number == number).first()
+            print "number=", number
+            user = User.query.filter(User.number == number).first()
             if user is None:
                 flask.abort(403)
             return f(user)
+
     return decorated_function
 
+
 def add_request(device=None, user=None, db_session=None):
-    request = Requests(device=device, user=user)
+    request = Request(device=device, user=user)
     db_session.add(request)
     db_session.commit()
     return request
 
+
 def set_location(lat=None, lng=None, device=None, db_session=None):
-    location = Locations(lat=lat, lng=lng, device=device)
+    location = Location(lat=lat, lng=lng, device=device)
     db_session.add(location)
     db_session.commit()
     return location
-

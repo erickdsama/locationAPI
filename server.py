@@ -1,6 +1,3 @@
-import time
-from datetime import datetime
-
 from flask import Flask
 from flask import jsonify
 from flask import request
@@ -10,7 +7,6 @@ from utils.methods import *
 
 init_db()
 app = Flask(__name__)
-
 
 
 @app.route('/location', methods=['GET'])
@@ -74,11 +70,6 @@ def api_register_device(user):
         return jsonify({"error": "{}".format(e)}), 400
     return jsonify(device.to_dict()), 201
 
-
-
-"{\"lat\":\"30.4050\", \"lng\": \"-130.42323\", \"id_code\":\"Ax34b9\"}"
-
-
 """
 AT+CSTT="CMNET"
 AT+CIICR
@@ -141,13 +132,13 @@ def help(user, pending_request):
         data = {
             "message":
                 """
-                Hola! Gracias por pedir ayuda.
-                Te explicare de manera sencilla como usar el sistema
-                
-                Esta es una lista de opciones:
-                -dispositivos
-                -ayuda
-                -etc
+Hola! Gracias por pedir ayuda.
+Te explicare de manera sencilla como usar el sistema
+
+Esta es una lista de opciones:
+-dispositivos
+-ayuda
+-etc
                 """
         }
         pending_request.status = 'T'
@@ -195,14 +186,17 @@ def get_messages_to_send():
 
         if not to_send:
             return jsonify({}), 404
-        data = []
+        data = []  # type: [Request]
+
         for message in to_send:
             user = User.query.filter(User.id == message.user).first()
-            Operator
+            message.status = "E"
+            # Operator
             message_obj = {
                 "number": "521{}@s.whatsapp.net".format(user.number),
                 "message": message.response,
             }
+            message.save()
             data.append(message_obj)
 
         return jsonify(data), 200

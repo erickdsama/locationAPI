@@ -1,4 +1,5 @@
 import functools
+from datetime import datetime
 
 import flask
 from sqlalchemy.exc import IntegrityError
@@ -51,21 +52,34 @@ def get_operator(operator_id):
     return operator
 
 
+def create_request(data, user):
+    message = data.get("message")
+    short_name = data.get("short_name")
+    device = None
+    if short_name:
+        from sqlalchemy import and_
+        device = Device.query.filter(and_(Device.user == user.id, Device.short_name == short_name)).first()
+        device = device.id
+    requester = Request(message=message, device=device, user=user.id, request_type='H', date_request=datetime.now().utcnow(), date_received=datetime.now().utcnow())
+    requester.save()
+    print requester
+    return requester
+
+
 def valid_user(f):
     @functools.wraps(f)
     def decorated_function(*args, **kws):
-        data = flask.request.get_json()
-        print data, "?"
+        data = flask.request.get_json() or flask.request.args
         if not data:
             flask.abort(403)
         else:
             print type(data)
             number = data.get("number")
-            print "number=", number
             user = User.query.filter(User.number == number).first()
             if user is None:
                 flask.abort(403)
-            return f(user)
+            pending_request = create_request(data, user)
+            return f(user, pending_request)
 
     return decorated_function
 

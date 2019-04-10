@@ -1,8 +1,10 @@
+import time
+from datetime import datetime
+
 from flask import Flask
 from flask import jsonify
 from flask import request
 
-from models.Users import User
 from utils.database import db_session, init_db
 from utils.methods import *
 
@@ -10,39 +12,30 @@ init_db()
 app = Flask(__name__)
 
 
-@app.route('/get_location', methods=['POST', 'GET'])
+
+@app.route('/location', methods=['GET'])
 @valid_user
-def api_get_location(user):
-    data_form = request.get_json()
-    short_name = data_form.get("short_name")
-    device = get_device(user_id=user.id, short_name=short_name)
-    print "device", device
-    location = get_location(device.id)
-    print "location", location
-    operator = get_operator(user.operator)
+def api_get_location(user, pending_request):
+    try:
+        device = pending_request.device
+        if not device:
+            raise Exception("Dispositivo no encontrado")
 
-    request_set = add_request(device=device.id, user=user.id, db_session=db_session)
-
-    data = {
-        "id": location.id,
-        "lat": location.lat,
-        "lng": location.lng,
-        "date": location.date_registered,
-        "device": {
-            "id": device.id,
-            "short_name": device.short_name,
-            "tag": device.id_code,
-            "user": {
-                "id": user.id,
-                "number": user.number,
-                "operator": {
-                    "id": operator.id,
-                    "number": operator.number
-                }
-            }
-        }
-    }
-    return jsonify(data)
+        location = Location.query.filter(Location.device == device).first()
+        if not location:
+            raise Exception("No hay ubicaciones registradas")
+        response = "https://www.google.com/maps/@{},{},15z".format(location.lat, location.lng)
+        pending_request.status = 'T'
+        pending_request.response = response
+        pending_request.date_request = datetime.now().utcnow()
+        pending_request.save()
+        return jsonify({}), 200
+    except Exception as e:
+        pending_request.status = 'F'
+        pending_request.response = str(e)
+        pending_request.date_request = datetime.now().utcnow()
+        pending_request.save()
+        return jsonify({"error": str(e)}), 400
 
 @app.route('/register_user', methods=['POST'])
 def api_register_user():
@@ -82,30 +75,150 @@ def api_register_device(user):
         return jsonify({"error": "{}".format(e)}), 400
     return jsonify(device.to_dict()), 201
 
-@app.route('/set_location', methods=['POST', 'GET'])
+
+
+"{\"lat\":\"30.4050\", \"lng\": \"-130.42323\", \"id_code\":\"Ax34b9\"}"
+
+
+"""
+AT+CSTT="CMNET"
+AT+CIICR
+AT+HTTPPARA="CID",1
+AT+CIFSR
+AT+CIPSTART="TCP","19f765e7.ngrok.io/"
+AT+HTTPPARA="URL","http://19f765e7.ngrok.io/location"
+AT+HTTPPARA="URL","http://19f765e7.ngrok.iolocation"
+AT+HTTPPARA="CONTENT","application/json"
+
+
+AT+HTTPDATA=150,15000
+{"lat":"30.4050", "lng": "-130.42323", "id_code":"Ax34b9"}
+AT+HTTPACTION=1
+
+
+"""
+@app.route('/location', methods=['POST'])
 def api_set_location():
-    data_form = request.get_json()
+    print "algo"
+    ugly_data = request.get_data()
+    start = ugly_data.find("{")
+    end = ugly_data.find("}")
+    str_json = ugly_data[start:end+1]
+    import json
+    data_form = json.loads(str_json)
+    # data_form = request.get_data()
     id_code = data_form.get("id_code")
     lat = data_form.get("lat")
     lng = data_form.get("lng")
+    print data_form
     # id_code = "8dkjsa9dask"
+    device = Device.query.filter(Device.id_code == id_code).first()
+    # device = get_device(id_code=id_code)
+    if not device:
+        raise Exception("Device not registered")
 
-    device = get_device(id_code=id_code)
-    location_sets = set_location(lat=lat, lng=lng, device=device.id, db_session=db_session)
-    data = {
-        "id": location_sets.id,
-        "lat": location_sets.lat,
-        "lng": location_sets.lng,
-        "date": location_sets.date_registered,
-        "device": {
-            "id": device.id,
-            "short_name": device.short_name,
-            "tag": device.id_code
+    data_form.pop("id_code")
+    data_form["device"] = device.id
+    location = Location(**data_form)
+    location.save()
+    # location_sets = set_location(lat=lat, lng=lng, device=device.id, db_session=db_session)
+    # data = {
+    #     "id": location_sets.id,
+    #     "lat": location_sets.lat,
+    #     "lng": location_sets.lng,
+    #     "date": location_sets.date_registered,
+    #     "device": {
+    #         "id": device.id,
+    #         "short_name": device.short_name,
+    #         "tag": device.id_code
+    #     }
+    # }
+    return jsonify({})
+
+
+@app.route('/help', methods=['GET'])
+@valid_user
+def help(user, pending_request):
+    try:
+        data = {
+            "message":
+                """
+                Hola! Gracias por pedir ayuda.
+                Te explicare de manera sencilla como usar el sistema
+                
+                Esta es una lista de opciones:
+                -dispositivos
+                -ayuda
+                -etc
+                """
         }
-    }
-    return jsonify(data)
+        pending_request.status = 'T'
+        pending_request.response = data.get("message")
+        pending_request.date_request = datetime.now().utcnow()
+        pending_request.save()
+        return jsonify(data)
+    except Exception as e:
+        pending_request.status = 'F'
+        pending_request.response = "Estamos en mantenimiento, espera unos segundos"
+        pending_request.date_request = datetime.now().utcnow()
+        pending_request.save()
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route('/available_devices', methods=['GET'])
+@valid_user
+def available_devices(user, pending_request):
+    try:
+        devices = Device.query.filter(Device.user == user.id).all()
+        print "mis devices", devices
+        devices_names = [device.short_name for device in devices]
+        devices_obj = {
+            "devices": devices_names
+        }
+        pending_request.status = 'E'
+        pending_request.response = "{}".format(devices_obj)
+        pending_request.date_request = datetime.now().utcnow()
+        pending_request.save()
+        return jsonify(devices_obj), 200
+    except Exception as e:
+        pending_request.status = 'F'
+        pending_request.response = "Error en el servidor {}".format(e)
+        pending_request.date_request = datetime.now().utcnow()
+        pending_request.save()
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route('/request', methods=['GET'])
+# @valid_user
+def get_messages_to_send():
+    try:
+        to_send = Request.query.filter(Request.status == 'T').all()
+
+        if not to_send:
+            return jsonify({}), 404
+        data = []
+        for message in to_send:
+            user = User.query.filter(User.id == message.user).first()
+            Operator
+            message_obj = {
+                "number": "521{}@s.whatsapp.net".format(user.number),
+                "message": message.response,
+            }
+            data.append(message_obj)
+
+        return jsonify(data), 200
+    except Exception as e:
+        print e
+        # pending_request.status = 'F'
+        # pending_request.response = "Error en el servidor {}".format(e)
+        # pending_request.date_request = datetime.now().utcnow()
+        # pending_request.save()
+        return jsonify({"error": str(e)}), 400
 
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
     db_session.remove()
+
+
+app.run(host='0.0.0.0', debug=1)

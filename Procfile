@@ -1,2 +1,2 @@
-server: gunicorn gettingstarted.wsgi --log-file -
+server: gunicorn wsgi:app --log-file
 

@@ -42,7 +42,6 @@ def api_register_user():
     data_form = request.get_json()
     number = data_form.get("number")
     operator = data_form.get("operator")
-    print "number=", number
     try:
         user = User.query.filter(User.number == number).first()
         if user is not None:
@@ -99,7 +98,6 @@ AT+HTTPACTION=1
 """
 @app.route('/location', methods=['POST'])
 def api_set_location():
-    print "algo"
     ugly_data = request.get_data()
     start = ugly_data.find("{")
     end = ugly_data.find("}")
@@ -110,7 +108,6 @@ def api_set_location():
     id_code = data_form.get("id_code")
     lat = data_form.get("lat")
     lng = data_form.get("lng")
-    print data_form
     # id_code = "8dkjsa9dask"
     device = Device.query.filter(Device.id_code == id_code).first()
     # device = get_device(id_code=id_code)
@@ -158,6 +155,7 @@ def help(user, pending_request):
         pending_request.save()
         return jsonify(data)
     except Exception as e:
+        print("error", e)
         pending_request.status = 'F'
         pending_request.response = "Estamos en mantenimiento, espera unos segundos"
         pending_request.date_request = datetime.now().utcnow()
@@ -170,7 +168,6 @@ def help(user, pending_request):
 def available_devices(user, pending_request):
     try:
         devices = Device.query.filter(Device.user == user.id).all()
-        print "mis devices", devices
         devices_names = [device.short_name for device in devices]
         devices_obj = {
             "devices": devices_names
@@ -181,6 +178,7 @@ def available_devices(user, pending_request):
         pending_request.save()
         return jsonify(devices_obj), 200
     except Exception as e:
+        print("error", e)
         pending_request.status = 'F'
         pending_request.response = "Error en el servidor {}".format(e)
         pending_request.date_request = datetime.now().utcnow()
@@ -208,7 +206,7 @@ def get_messages_to_send():
 
         return jsonify(data), 200
     except Exception as e:
-        print e
+        print("error", e)
         # pending_request.status = 'F'
         # pending_request.response = "Error en el servidor {}".format(e)
         # pending_request.date_request = datetime.now().utcnow()
@@ -221,4 +219,4 @@ def shutdown_session(exception=None):
     db_session.remove()
 
 
-app.run(host='0.0.0.0', debug=1)
+# app.run(host='0.0.0.0', debug=1)

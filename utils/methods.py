@@ -10,9 +10,9 @@ SECRET_KEY = 'develop'
 
 
 def register_device(code, short_name, user, db_session=None):
-    print "short_name", short_name
-    print "code", code
-    print "user", user.id
+    # print "short_name", short_name
+    # print "code", code
+    # print "user", user.id
 
     device = Device(id_code=code, short_name=short_name, user=user.id)
     db_session.add(device)
@@ -62,7 +62,7 @@ def create_request(data, user):
         device = device.id
     requester = Request(message=message, device=device, user=user.id, request_type='H', date_request=datetime.now().utcnow(), date_received=datetime.now().utcnow())
     requester.save()
-    print requester
+    # print requester
     return requester
 
 
@@ -73,7 +73,7 @@ def valid_user(f):
         if not data:
             flask.abort(403)
         else:
-            print type(data)
+            # print type(data)
             number = data.get("number")
             user = User.query.filter(User.number == number).first()
             if user is None:

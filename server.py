@@ -98,7 +98,7 @@ AT+HTTPACTION=1
 """
 @app.route('/location', methods=['POST'])
 def api_set_location():
-    ugly_data = request.get_data()
+    ugly_data = str(request.get_data())
     print("ugly_data", ugly_data)
     start = ugly_data.find("{")
     end = ugly_data.find("}")

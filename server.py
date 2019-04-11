@@ -5,7 +5,6 @@ from flask import request
 
 from utils.database import db_session, init_db
 from utils.methods import *
-
 init_db()
 app = Flask(__name__)
 
@@ -23,9 +22,9 @@ def api_get_location(user, pending_request):
             raise Exception("No hay ubicaciones registradas")
         response = "http://maps.google.com/maps?q={},{}&z=17".format(location.lat, location.lng)
         pending_request.status = 'T'
-        url = "https://www.googleapis.com/urlshortener/v1/url"
+        from no_git import api_key
+        url = "https://www.googleapis.com/urlshortener/v1/url?key={}".format(api_key)
         headers = {
-            "Authorization": "AIzaSyASB6JsEaz8m_0ObIfH1UsAgAtXp9nBqvo",
             "Content-Type": "application/json"
         }
         data = {"longUrl": response}

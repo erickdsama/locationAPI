@@ -17,6 +17,7 @@ class Location(Base, CRUD):
         self.lat = lat
         self.lng = lng
         self.device = device
+        self.date_registered = datetime.datetime.now().utcnow()
 
     def __repr__(self):
         return '<Location %r>' % (self.id)

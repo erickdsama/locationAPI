@@ -105,7 +105,7 @@ def api_set_location():
     # device = get_device(id_code=id_code)
     if not device:
         raise Exception("Device not registered")
-    data_form["date_registered"] = datetime.now().utcnow()
+    # data_form["date_registered"] =
     data_form.pop("id_code")
     data_form["device"] = device.id
     location = Location(**data_form)

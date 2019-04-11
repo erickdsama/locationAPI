@@ -1,4 +1,3 @@
-import os
 import requests
 from flask import Flask
 from flask import jsonify
@@ -6,6 +5,7 @@ from flask import request
 
 from utils.database import db_session, init_db
 from utils.methods import *
+
 init_db()
 app = Flask(__name__)
 
@@ -22,18 +22,6 @@ def api_get_location(user, pending_request):
         if not location:
             raise Exception("No hay ubicaciones registradas")
         response = "http://maps.google.com/maps?q={},{}&z=17".format(location.lat, location.lng)
-        pending_request.status = 'T'
-        API_KEY = os.environ.get('API_KEY', None)
-        url = "https://www.googleapis.com/urlshortener/v1/url?key={}".format(API_KEY)
-        headers = {
-            "Content-Type": "application/json"
-        }
-        data = {"longUrl": response}
-        shorting_request = requests.post(url=url, data=data, headers=headers)
-        if shorting_request.status_code in [200,201, 202]:
-            json_shorting = shorting_request.json()
-            response = json_shorting.get("id")
-
         pending_request.response = response
         pending_request.date_request = datetime.now().utcnow()
         pending_request.save()
@@ -117,7 +105,7 @@ def api_set_location():
     # device = get_device(id_code=id_code)
     if not device:
         raise Exception("Device not registered")
-
+    data_form["date_registered"] = datetime.now().utcnow()
     data_form.pop("id_code")
     data_form["device"] = device.id
     location = Location(**data_form)

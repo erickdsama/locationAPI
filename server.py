@@ -1,3 +1,4 @@
+import os
 import requests
 from flask import Flask
 from flask import jsonify
@@ -22,8 +23,8 @@ def api_get_location(user, pending_request):
             raise Exception("No hay ubicaciones registradas")
         response = "http://maps.google.com/maps?q={},{}&z=17".format(location.lat, location.lng)
         pending_request.status = 'T'
-        from no_git import api_key
-        url = "https://www.googleapis.com/urlshortener/v1/url?key={}".format(api_key)
+        API_KEY = os.environ.get('API_KEY', None)
+        url = "https://www.googleapis.com/urlshortener/v1/url?key={}".format(API_KEY)
         headers = {
             "Content-Type": "application/json"
         }

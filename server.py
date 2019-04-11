@@ -1,3 +1,4 @@
+import requests
 from flask import Flask
 from flask import jsonify
 from flask import request
@@ -20,8 +21,19 @@ def api_get_location(user, pending_request):
         location = Location.query.filter(Location.device == device).first()
         if not location:
             raise Exception("No hay ubicaciones registradas")
-        response = "https://www.google.com/maps/@{},{},15z".format(location.lat, location.lng)
+        response = "http://maps.google.com/maps?q={},{}&z=17".format(location.lat, location.lng)
         pending_request.status = 'T'
+        url = "https://www.googleapis.com/urlshortener/v1/url"
+        headers = {
+            "Authorization": "AIzaSyASB6JsEaz8m_0ObIfH1UsAgAtXp9nBqvo",
+            "Content-Type": "application/json"
+        }
+        data = {"longUrl": response}
+        shorting_request = requests.post(url=url, data=data, headers=headers)
+        if shorting_request.status_code in [200,201, 202]:
+            json_shorting = shorting_request.json()
+            response = json_shorting.get("id")
+
         pending_request.response = response
         pending_request.date_request = datetime.now().utcnow()
         pending_request.save()

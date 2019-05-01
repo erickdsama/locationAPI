@@ -23,6 +23,7 @@ def api_get_location(user, pending_request):
             raise Exception("No hay ubicaciones registradas")
         response = "http://maps.google.com/maps?q={},{}&z=17".format(location.lat, location.lng)
         pending_request.response = response
+        pending_request.status = 'T'
         pending_request.date_request = datetime.now().utcnow()
         pending_request.save()
         return jsonify({}), 200
@@ -33,7 +34,7 @@ def api_get_location(user, pending_request):
         pending_request.save()
         return jsonify({"error": str(e)}), 400
 
-@app.route('/register_user', methods=['POST'])
+@app.route('/user', methods=['POST'])
 def api_register_user():
     data_form = request.get_json()
     number = data_form.get("number")
@@ -54,7 +55,7 @@ def api_register_user():
     return jsonify(user.to_dict()), 201
 
 
-@app.route('/register_device', methods=['POST'])
+@app.route('/device', methods=['POST'])
 @valid_user
 def api_register_device(user):
     data_form = request.get_json()

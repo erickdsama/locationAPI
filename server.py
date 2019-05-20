@@ -55,18 +55,28 @@ def api_register_user():
     return jsonify(user.to_dict()), 201
 
 
-@app.route('/device', methods=['POST'])
-@valid_user
+@app.route('/register_device', methods=['POST'])
 def api_register_device(user):
     data_form = request.get_json()
     id_code = data_form.get("id_code")
     short_name = data_form.get("short_name")
+    number = data_form.get("number")
+    operator = data_form.get("operator")
+
     try:
-        device = register_device(code=id_code, short_name=short_name, user=user, db_session=db_session)
-    except IntegrityError:
-        return jsonify({"error": "id_code ya registrado"}), 409
-    except KeyError as e:
-        return jsonify({"error": "no esta definido: {}".format(e)}), 400
+
+        try:
+            user = register_user(number, operator, db_session)
+        except IntegrityError:
+            return jsonify({"error": "id_code ya registrado"}), 409
+
+        try:
+            device = register_device(code=id_code, short_name=short_name, user=user, db_session=db_session)
+        except IntegrityError:
+            return jsonify({"error": "id_code ya registrado"}), 409
+        except KeyError as e:
+            return jsonify({"error": "no esta definido: {}".format(e)}), 400
+
     except Exception as e:
         return jsonify({"error": "{}".format(e)}), 400
     return jsonify(device.to_dict()), 201
@@ -139,7 +149,9 @@ Te explicare de manera sencilla como usar el sistema
 Esta es una lista de opciones:
 -dispositivos
 -ayuda
--etc
+-registrar qr_id [nombre]
+-[nombre_dispositivo] para buscar
+
                 """
         }
         pending_request.status = 'T'

@@ -231,7 +231,7 @@ def api_devices(user, pending_request):
         for device in devices:
             message_devices += device.short_name + "\n"
 
-        pending_request.status = 'E'
+        pending_request.status = 'T'
         pending_request.response = message_devices
         pending_request.date_request = datetime.now().utcnow()
         pending_request.save()

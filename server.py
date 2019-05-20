@@ -1,3 +1,5 @@
+import sys
+
 import requests
 from flask import Flask
 from flask import jsonify
@@ -60,6 +62,8 @@ def api_register_device():
     data_form = request.get_json()
     print("*"*200)
     print("DATA FORM ", data_form)
+    sys.stdout.flush()
+
     id_code = data_form.get("id_code")
     short_name = data_form.get("short_name")
     number = data_form.get("number")

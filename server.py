@@ -5,6 +5,7 @@ import requests
 from flask import Flask
 from flask import jsonify
 from flask import request
+from sqlalchemy import desc
 
 from utils.database import db_session, init_db
 from utils.methods import *
@@ -20,7 +21,7 @@ def api_get_location(user, pending_request):
         if not device:
             raise Exception("Dispositivo no encontrado")
 
-        location = Location.query.filter(Location.device == device).first()
+        location = Location.query.filter(Location.device == device).order_by(desc(Location.id)).first()
         if not location:
             raise Exception("No hay ubicaciones registradas")
         response = "http://maps.google.com/maps?q={},{}&z=17".format(location.lat, location.lng)

@@ -128,17 +128,13 @@ AT+HTTPACTION=1
 """
 @app.route('/location', methods=['POST'])
 def api_set_location():
-    try:
-        data_form = request.get_json()
-        print("dataform", data_form)
-    except Exception as e:
-        ugly_data = str(request.get_data())
-        print("ugly_data", ugly_data)
-        start = ugly_data.find("{")
-        end = ugly_data.find("}")
-        str_json = ugly_data[start:end+1]
-        import json
-        data_form = json.loads(str_json)
+    ugly_data = str(request.get_data())
+    print("ugly_data", ugly_data)
+    start = ugly_data.find("{")
+    end = ugly_data.find("}")
+    str_json = ugly_data[start:end+1]
+    import json
+    data_form = json.loads(str_json)
 
     # data_form = request.get_data()
     id_code = data_form.get("id_code")
@@ -167,6 +163,39 @@ def api_set_location():
     #     }
     # }
     return jsonify({})
+
+
+@app.route('/location_bot', methods=['POST'])
+def api_set_location2():
+    data_form = request.get_json()
+    # data_form = request.get_data()
+    id_code = data_form.get("id_code")
+    lat = data_form.get("lat")
+    lng = data_form.get("lng")
+    # id_code = "8dkjsa9dask"
+    device = Device.query.filter(Device.id_code == id_code).first()
+    # device = get_device(id_code=id_code)
+    if not device:
+        raise Exception("Device not registered")
+    # data_form["date_registered"] =
+    data_form.pop("id_code")
+    data_form["device"] = device.id
+    location = Location(**data_form)
+    location.save()
+    # location_sets = set_location(lat=lat, lng=lng, device=device.id, db_session=db_session)
+    # data = {
+    #     "id": location_sets.id,
+    #     "lat": location_sets.lat,
+    #     "lng": location_sets.lng,
+    #     "date": location_sets.date_registered,
+    #     "device": {
+    #         "id": device.id,
+    #         "short_name": device.short_name,
+    #         "tag": device.id_code
+    #     }
+    # }
+    return jsonify({})
+
 
 
 @app.route('/help', methods=['GET'])

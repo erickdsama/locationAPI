@@ -80,7 +80,10 @@ def api_register_device():
         try:
             user = register_user(number, operator, db_session)
         except IntegrityError:
-            return jsonify({"error": "id_code ya registrado"}), 409
+            try:
+                user = User.query.filter(User.number == number).first()
+            except Exception as e:
+                return jsonify({"error": "user ya registrado"}), 409
 
         try:
             device = Device.query.filter(Device.id_code == id_code).first()

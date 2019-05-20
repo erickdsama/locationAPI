@@ -167,6 +167,7 @@ def api_set_location():
 @valid_user
 def help(user, pending_request):
     try:
+        print("QUE PEX")
         data = {
             "message":
                 """

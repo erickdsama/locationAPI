@@ -63,11 +63,17 @@ def api_register_device():
     app.logger.error("*"*200)
     app.logger.error('DATA FORM {}'.format(data_form))
 
-
-    id_code = data_form.get("id_code")
-    short_name = data_form.get("short_name")
-    number = data_form.get("number")
     operator = data_form.get("operator")
+    message = data_form.get("message")
+    number = data_form.get("number")
+
+    message_params = message.split(" ")
+    if len(message_params) != 3:
+        return jsonify({"error": "parametros incorrectos"})
+
+
+    id_code = message_params[1]
+    short_name = message_params[2]
 
     try:
 
@@ -77,7 +83,10 @@ def api_register_device():
             return jsonify({"error": "id_code ya registrado"}), 409
 
         try:
-            device = register_device(code=id_code, short_name=short_name, user=user, db_session=db_session)
+            device = Device.query.filter(Device.id_code == id_code).first()
+            device.user = user.id
+            device.date_registered = datetime.now().utcnow()
+            device.save()
         except IntegrityError:
             return jsonify({"error": "id_code ya registrado"}), 409
         except KeyError as e:

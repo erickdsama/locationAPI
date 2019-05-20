@@ -181,7 +181,7 @@ Esta es una lista de opciones:
 
                 """
         }
-        pending_request.status = 'T'
+        pending_request.status = 'E'
         pending_request.response = data.get("message")
         pending_request.date_request = datetime.now().utcnow()
         pending_request.save()

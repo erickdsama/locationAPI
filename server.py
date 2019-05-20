@@ -167,7 +167,6 @@ def api_set_location():
 @valid_user
 def help(user, pending_request):
     try:
-        print("QUE PEX")
         data = {
             "message":
                 """
@@ -182,7 +181,7 @@ Esta es una lista de opciones:
 
                 """
         }
-        pending_request.status = 'E'
+        pending_request.status = 'T'
         pending_request.response = data.get("message")
         pending_request.date_request = datetime.now().utcnow()
         pending_request.save()

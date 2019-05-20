@@ -11,8 +11,6 @@ from utils.methods import *
 
 init_db()
 app = Flask(__name__)
-app.logger.addHandler(logging.StreamHandler(sys.stdout))
-app.logger.setLevel(logging.DEBUG)
 
 @app.route('/location', methods=['GET'])
 @valid_user
@@ -62,9 +60,8 @@ def api_register_user():
 @app.route('/register_device', methods=['POST'])
 def api_register_device():
     data_form = request.get_json()
-    app.logger.info("*"*200)
-
-    app.logger.info('DATA FORM {}'.format(data_form))
+    app.logger.error("*"*200)
+    app.logger.error('DATA FORM {}'.format(data_form))
 
 
     id_code = data_form.get("id_code")
@@ -236,5 +233,5 @@ def shutdown_session(exception=None):
     db_session.remove()
 
 
-if __name__ == '__main__':
-   app.run(debug=True)
+# if __name__ == '__main__':
+#    app.run(debug=True)

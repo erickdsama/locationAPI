@@ -4,6 +4,7 @@ from sqlalchemy import Column, Integer, String, Text, Date, ForeignKey
 from utils.database import Base, CRUD
 from .Operator import *
 
+
 class User(Base, CRUD):
     __tablename__ = 'user'
 
@@ -20,6 +21,6 @@ class User(Base, CRUD):
 
     def to_dict(self):
         return {
-                "number": self.number,
-                "operator": self.operator
-            }
+            "number": self.number,
+            "operator": self.operator
+        }

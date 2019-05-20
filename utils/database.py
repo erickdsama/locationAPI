@@ -7,18 +7,32 @@ engine = create_engine(
 )
 
 # engine = create_engine('sqlite:///location_rwas.db', convert_unicode=True)
-db_session = scoped_session(sessionmaker(autocommit=False,
-                                         autoflush=False,
-                                         bind=engine))
+
+
+def new_session():
+    # engine = create_engine('sqlite:///location_rwas.db', convert_unicode=True)
+    return scoped_session(sessionmaker(autocommit=False,
+                                             autoflush=False,
+                                             bind=engine))
+
+
+db_session = new_session()
+
 Base = declarative_base()
 Base.query = db_session.query_property()
 
 
 class CRUD():
     def save(self):
-        if self.id is None:
-            db_session.add(self)
-        return db_session.commit()
+        try:
+            if self.id is None:
+                db_session.add(self)
+            return db_session.commit()
+        except Exception as e:
+            new_sess = new_session()
+            if self.id is None:
+                new_sess.add(self)
+            return new_sess.commit()
 
     def destroy(self):
         db_session.delete(self)

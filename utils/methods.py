@@ -30,6 +30,7 @@ def register_user(number, operator, db_session=None):
     try:
         db_session.commit()
     except IntegrityError as e:
+        db_session.e
         raise e
     return device
 

@@ -78,7 +78,11 @@ def api_register_device():
     try:
 
         try:
-            user = register_user(number, operator, db_session)
+            user = {
+                "number": number,
+                "operator": operator
+            }
+            user = User(**user)
         except IntegrityError:
             try:
                 user = User.query.filter(User.number == number).first()

@@ -24,15 +24,9 @@ Base.query = db_session.query_property()
 
 class CRUD():
     def save(self):
-        try:
-            if self.id is None:
-                db_session.add(self)
-            return db_session.commit()
-        except Exception as e:
-            new_sess = new_session()
-            if self.id is None:
-                new_sess.add(self)
-            return new_sess.commit()
+        if self.id is None:
+            db_session.add(self)
+        return db_session.commit()
 
     def destroy(self):
         db_session.delete(self)

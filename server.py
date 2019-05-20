@@ -86,6 +86,7 @@ def api_register_device():
             user.save()
         except IntegrityError:
             try:
+                db_session.rollback()
                 user = User.query.filter(User.number == number).first()
             except Exception as e:
                 return jsonify({"error": "user ya registrado -> {}".format(e)}), 400

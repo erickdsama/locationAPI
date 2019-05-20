@@ -11,7 +11,8 @@ from utils.methods import *
 
 init_db()
 app = Flask(__name__)
-
+app.logger.addHandler(logging.StreamHandler(sys.stdout))
+app.logger.setLevel(logging.DEBUG)
 
 @app.route('/location', methods=['GET'])
 @valid_user

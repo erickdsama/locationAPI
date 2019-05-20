@@ -56,9 +56,10 @@ def api_register_user():
 
 
 @app.route('/register_device', methods=['POST'])
-def api_register_device(user):
+def api_register_device():
     data_form = request.get_json()
-    print(data_form)
+    print("*"*200)
+    print("DATA FORM ", data_form)
     id_code = data_form.get("id_code")
     short_name = data_form.get("short_name")
     number = data_form.get("number")

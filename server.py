@@ -128,16 +128,15 @@ AT+HTTPACTION=1
 """
 @app.route('/location', methods=['POST'])
 def api_set_location():
-    ugly_data = str(request.get_data())
-    if ugly_data:
+    data_form = request.get_json()
+    if not data_form:
+        ugly_data = str(request.get_data())
         print("ugly_data", ugly_data)
         start = ugly_data.find("{")
         end = ugly_data.find("}")
         str_json = ugly_data[start:end+1]
         import json
         data_form = json.loads(str_json)
-    else:
-        data_form = request.get_json()
 
     # data_form = request.get_data()
     id_code = data_form.get("id_code")

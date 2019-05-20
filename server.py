@@ -130,7 +130,7 @@ AT+HTTPACTION=1
 def api_set_location():
     try:
         data_form = request.get_json()
-        print "dataform", data_form
+        print("dataform", data_form)
     except Exception as e:
         ugly_data = str(request.get_data())
         print("ugly_data", ugly_data)

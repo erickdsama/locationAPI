@@ -92,6 +92,7 @@ def api_register_device():
         try:
             device = Device.query.filter(Device.id_code == id_code).first()
             device.user = user.id
+            device.short_name = short_name
             device.date_registered = datetime.now().utcnow()
             db_session.commit()
 

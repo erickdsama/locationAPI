@@ -1,10 +1,10 @@
 import datetime
 
 from sqlalchemy import Column, Integer, String, Text, Date, ForeignKey
-from utils.database import Base
+from utils.database import Base, CRUD
 from .Operator import *
 
-class User(Base):
+class User(Base, CRUD):
     __tablename__ = 'user'
 
     id = Column(Integer, primary_key=True, autoincrement=True)

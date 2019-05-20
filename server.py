@@ -128,8 +128,10 @@ AT+HTTPACTION=1
 """
 @app.route('/location', methods=['POST'])
 def api_set_location():
-    data_form = request.get_json()
-    if not data_form:
+    try:
+        data_form = request.get_json()
+        print "dataform", data_form
+    except Exception as e:
         ugly_data = str(request.get_data())
         print("ugly_data", ugly_data)
         start = ugly_data.find("{")

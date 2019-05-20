@@ -217,6 +217,33 @@ def available_devices(user, pending_request):
         pending_request.save()
         return jsonify({"error": str(e)}), 400
 
+@app.route('/devices', methods=['GET'])
+@valid_user
+def api_devices(user, pending_request):
+    try:
+        devices = Device.query.filter(Device.user == user.id).all()
+        devices_names = [device.short_name for device in devices]
+        devices_obj = {
+            "devices": devices_names
+        }
+
+        message_devices = "dispositivos disponibles:\n\n"
+        for device in devices:
+            message_devices += message_devices + "\n"
+
+        pending_request.status = 'E'
+        pending_request.response = message_devices
+        pending_request.date_request = datetime.now().utcnow()
+        pending_request.save()
+        return jsonify(devices_obj), 200
+    except Exception as e:
+        print("error", e)
+        pending_request.status = 'F'
+        pending_request.response = "Error en el servidor {}".format(e)
+        pending_request.date_request = datetime.now().utcnow()
+        pending_request.save()
+        return jsonify({"error": str(e)}), 400
+
 
 @app.route('/request', methods=['GET'])
 # @valid_user

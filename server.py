@@ -104,7 +104,7 @@ def api_register_device():
 
     except Exception as e:
         return jsonify({"error": "{}".format(e)}), 400
-    return jsonify(device.to_dict()), 201
+    return jsonify(user.to_dict()), 201
 
 """
 AT+CSTT="CMNET"

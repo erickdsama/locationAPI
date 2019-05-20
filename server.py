@@ -83,7 +83,7 @@ def api_register_device():
             try:
                 user = User.query.filter(User.number == number).first()
             except Exception as e:
-                return jsonify({"error": "user ya registrado"}), 409
+                return jsonify({"error": "user ya registrado -> {}".format(e)}), 400
 
         try:
             device = Device.query.filter(Device.id_code == id_code).first()

@@ -229,7 +229,7 @@ def api_devices(user, pending_request):
 
         message_devices = "dispositivos disponibles:\n\n"
         for device in devices:
-            message_devices += message_devices + "\n"
+            message_devices += device.short_name + "\n"
 
         pending_request.status = 'E'
         pending_request.response = message_devices

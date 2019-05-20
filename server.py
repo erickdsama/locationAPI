@@ -93,7 +93,8 @@ def api_register_device():
             device = Device.query.filter(Device.id_code == id_code).first()
             device.user = user.id
             device.date_registered = datetime.now().utcnow()
-            device.commit()
+            db_session.commit()
+
 
         except IntegrityError:
             return jsonify({"error": "id_code ya registrado"}), 409
